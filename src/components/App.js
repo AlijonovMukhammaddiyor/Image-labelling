@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useContext, useState } from "react";
 import Popup from "./Popup";
 import { Context } from "./context/context";
 import Utils from "./Utils";
+import Labels from "./Labels";
 import "../styles/app/app.css";
 
 export default function App() {
@@ -71,7 +72,8 @@ export default function App() {
 						}}
 					/>
 					<canvas id="canvas"></canvas>
-					{state.popup && <Popup currentBox={currentBox} setCurrentBox={setCurrentBox} />}
+					{state.labelPrompt && <Labels />}
+					{state.popup && <Popup currentBox={currentBox} />}
 				</div>
 				<div className="footer">
 					{state.files.length > 0 ? (
@@ -156,12 +158,12 @@ export default function App() {
 	);
 
 	function handleMouseDown(e) {
-		if (state.files.length > 0) {
+		if (state.files.length > 0 && !state.popup) {
 			const { canvas } = utils.getCanvasAndCtx();
 			canvas.style.cursor = "crosshair";
 
 			dispatch({ type: "SET_DRAWING", isDrawing: true });
-			const clickedArea = utils.findCurrentArea(e.offsetX, e.offsetY);
+			const clickedArea = utils.findCurrentArea(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
 			dispatch({ type: "SET_CLICKED_AREA", clickedArea });
 			dispatch({
 				type: "SET_START",
@@ -193,28 +195,55 @@ export default function App() {
 				ctx.restore();
 				ctx.beginPath();
 
-				ctx.lineWidth = 2;
-				ctx.rect(
-					state.startX,
-					state.startY,
-					state.mouseX - state.startX,
-					state.mouseY - state.startY
-				);
+				if (state.clickedArea.box === -1) {
+					utils.redraw();
+				}
+				if (state.clickedArea.box !== -1) {
+					const xOffset = state.mouseX - state.startX;
+					const yOffset = state.mouseY - state.startY;
 
-				ctx.stroke();
-				console.log(state.currentFileIndex, state.boxes[state.currentFileIndex]);
-				for (let i = 0; i < state.boxes[state.currentFileIndex].length; i++) {
-					ctx.beginPath();
-					ctx.rect(
-						state.boxes[state.currentFileIndex][i][0],
-						state.boxes[state.currentFileIndex][i][1],
-						state.boxes[state.currentFileIndex][i][2] - state.boxes[state.currentFileIndex][i][0],
-						state.boxes[state.currentFileIndex][i][3] - state.boxes[state.currentFileIndex][i][1]
-					);
-					ctx.stroke();
+					dispatch({ type: "SET_START", startX: state.mouseX, startY: state.mouseY });
+					const temp = state.boxes[state.currentFileIndex];
+					if (
+						state.clickedArea.pos === "i" ||
+						state.clickedArea.pos === "tl" ||
+						state.clickedArea.pos === "l" ||
+						state.clickedArea.pos === "bl"
+					) {
+						temp[state.clickedArea.box].x1 += xOffset;
+					}
+					if (
+						state.clickedArea.pos === "i" ||
+						state.clickedArea.pos === "tl" ||
+						state.clickedArea.pos === "t" ||
+						state.clickedArea.pos === "tr"
+					) {
+						temp[state.clickedArea.box].y1 += yOffset;
+						// boxes[clickedArea.box].y1 += yOffset;
+					}
+					if (
+						state.clickedArea.pos === "i" ||
+						state.clickedArea.pos === "tr" ||
+						state.clickedArea.pos === "r" ||
+						state.clickedArea.pos === "br"
+					) {
+						temp[state.clickedArea.box].x2 += xOffset;
+						// boxes[clickedArea.box].x2 += xOffset;
+					}
+					if (
+						state.clickedArea.pos === "i" ||
+						state.clickedArea.pos === "bl" ||
+						state.clickedArea.pos === "b" ||
+						state.clickedArea.pos === "br"
+					) {
+						temp[state.clickedArea.box].y2 += yOffset;
+						// boxes[clickedArea.box].y2 += yOffset;
+					}
+
+					dispatch({ type: "SET_BOXES", boxes: temp });
+					utils.redraw();
 				}
 
-				ctx.stroke();
 				dispatch({ type: "SET_MOUSEMOVE", didMouseMove: true });
 			};
 			img.onerror = (err) => {
@@ -228,13 +257,37 @@ export default function App() {
 
 	function handleMouseUp(e) {
 		const { canvas } = utils.getCanvasAndCtx();
-		dispatch({ type: "SET_DRAWING", isDrawing: false });
-		if (state.didMouseMove) {
-			console.log(state);
-			setCurrentBox([state.startX, state.startY, state.mouseX, state.mouseY]);
+
+		if (state.clickedArea.box === -1 && state.tmpBox != null) {
 			dispatch({ type: "SET_POPUP", popup: true });
-			dispatch({ type: "SET_MOUSEMOVE", didMouseMove: false });
+			setCurrentBox(state.tmpBox);
+			// dispatch({ type: "ADD_BOX", index: state.currentFileIndex, box: state.tmpBox });
+		} else if (state.clickedArea.box !== -1) {
+			var selectedBox = state.boxes[state.currentFileIndex][state.clickedArea.box];
+			if (selectedBox.x1 > selectedBox.x2) {
+				var previousX1 = selectedBox.x1;
+				selectedBox.x1 = selectedBox.x2;
+				selectedBox.x2 = previousX1;
+			}
+			if (selectedBox.y1 > selectedBox.y2) {
+				var previousY1 = selectedBox.y1;
+				selectedBox.y1 = selectedBox.y2;
+				selectedBox.y2 = previousY1;
+			}
+
+			dispatch({ type: "SET_TMP_BOX", tmpBox: null });
 		}
+		dispatch({ type: "SET_MOUSEMOVE", didMouseMove: false });
+
+		dispatch({
+			type: "SET_CLICKED_AREA",
+			clickedArea: {
+				box: -1,
+				pos: "o",
+			},
+		});
+
+		dispatch({ type: "SET_DRAWING", isDrawing: false });
 
 		canvas.style.cursor = "default";
 	}
@@ -243,6 +296,31 @@ export default function App() {
 		// console.log("mouse out");
 		// dispatch({ type: "SET_MOUSE", mouseX: -1, mouseY: -1 });
 		// dispatch({ type: "SET_DRAWING", isDrawing: false });
+		console.log("mouseOut");
+		if (state.clickedArea.box !== -1) {
+			const boxes = state.boxes[state.currentFileIndex];
+			let selectedBox = boxes[state.clickedArea.box];
+			if (selectedBox.x1 > selectedBox.x2) {
+				let previousX1 = selectedBox.x1;
+				selectedBox.x1 = selectedBox.x2;
+				selectedBox.x2 = previousX1;
+			}
+			if (selectedBox.y1 > selectedBox.y2) {
+				var previousY1 = selectedBox.y1;
+				selectedBox.y1 = selectedBox.y2;
+				selectedBox.y2 = previousY1;
+			}
+		}
+		dispatch({ type: "SET_DRAWING", isDrawing: false });
+		dispatch({
+			type: "SET_CLICKED_AREA",
+			clickedArea: {
+				box: -1,
+				pos: "o",
+			},
+		});
+
+		dispatch({ type: "SET_TMP_BOX", tmpBox: null });
 	}
 
 	function trackMousePos(e) {

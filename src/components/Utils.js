@@ -5,17 +5,7 @@ export default class Utils {
 		this.state = state;
 		this.dispatch = dispatch;
 		this.lineOffset = 4;
-		this.anchrSize = 2;
-	}
-
-	addToObjects(shoulddAd, mouseX, mouseY, startX, startY, label) {
-		if (shoulddAd) {
-			const currentRect = [startX, startY, mouseX - startX, mouseY - startY, label];
-			// this.dispatch({ type: "ADD_BOX", box: currentRect });
-		} else {
-			this.undo(false);
-		}
-		this.popup = false;
+		this.anchrSize = 4;
 	}
 
 	download(e) {
@@ -38,16 +28,26 @@ export default class Utils {
 	}
 
 	downloadTextFile(e) {
-		const temp = ["startX", "startY", "width", "height", "label"];
-		for (let i = 0; i < this.state.boxes.length; i++) {
-			temp.push(this.state.boxes[i]);
-			temp.push("\n");
+		// const temp = ["startX", "startY", "endX", "endY", "label"];
+		const temp = {};
+		for (let i = 0; i < this.state.files.length; i++) {
+			temp[this.state.files[i][0]] = [];
+			const boxes = this.state.boxes[i];
+			for (let box of boxes) {
+				temp[this.state.files[i][0]].push({
+					startX: box.x1,
+					startY: box.y1,
+					endX: box.x2,
+					endY: box.y2,
+					label: box.label,
+				});
+			}
 		}
 
 		const element = document.createElement("a");
-		const file = new Blob(temp, { type: "text/plain" });
+		const file = new Blob([JSON.stringify(temp)], { type: "application/json" });
 		element.href = URL.createObjectURL(file);
-		element.download = "details.txt";
+		element.download = "details.json";
 		document.body.appendChild(element); // Required for this to work in FireFox
 		element.click();
 	}
@@ -121,17 +121,22 @@ export default class Utils {
 		promise.then((data) => {
 			const length = data.length;
 			this.dispatch({ type: "INIT_BOXES", length });
+			this.dispatch({ type: "SET_LABELPROMPT", label: true });
 			this.dispatch({ type: "SET_FILES", files: data });
 			this.dispatch({ type: "SET_CURRENT_FILE_INDEX", index: 0 });
 		});
 	}
 
 	findCurrentArea(x, y) {
+		console.log("f", x, y);
 		const boxes = this.state.boxes[this.state.currentFileIndex];
+		console.log(boxes);
 		for (var i = 0; i < boxes.length; i++) {
 			var box = boxes[i];
+			console.log(box);
 			let xCenter = box.x1 + (box.x2 - box.x1) / 2;
 			let yCenter = box.y1 + (box.y2 - box.y1) / 2;
+			console.log(xCenter, yCenter);
 			if (box.x1 - this.lineOffset < x && x < box.x1 + this.lineOffset) {
 				if (box.y1 - this.lineOffset < y && y < box.y1 + this.lineOffset) {
 					return { box: i, pos: "tl" };
@@ -197,7 +202,7 @@ export default class Utils {
 		const boxes = this.state.boxes[this.state.currentFileIndex];
 
 		const { canvas, ctx } = this.getCanvasAndCtx();
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		// ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.beginPath();
 		for (var i = 0; i < boxes.length; i++) {
 			this.drawBoxOn(boxes[i], ctx);
@@ -210,6 +215,8 @@ export default class Utils {
 				this.state.mouseX,
 				this.state.mouseY
 			);
+
+			this.dispatch({ type: "SET_TMP_BOX", tmpBox });
 			if (tmpBox != null) {
 				this.drawBoxOn(tmpBox, ctx);
 			}
@@ -217,6 +224,7 @@ export default class Utils {
 	}
 
 	drawBoxOn(box, context) {
+		console.log(box);
 		const xCenter = box.x1 + (box.x2 - box.x1) / 2;
 		const yCenter = box.y1 + (box.y2 - box.y1) / 2;
 
@@ -294,21 +302,13 @@ export default class Utils {
 				y1: boxY1,
 				x2: boxX2,
 				y2: boxY2,
-				lineWidth: 1,
-				color: "DeepSkyBlue",
+				lineWidth: 2,
+				color: "Black",
+				label: null,
 			};
 		} else {
 			return null;
 		}
-	}
-
-	drawRects(ctx, rects) {
-		for (let i = 0; i < rects.length; i++) {
-			ctx.beginPath();
-			ctx.rect(rects[i][0], rects[i][1], rects[i][2], rects[i][3]);
-			ctx.stroke();
-		}
-		ctx.stroke();
 	}
 
 	zoomInOut(zoomIn) {
@@ -323,10 +323,8 @@ export default class Utils {
 	undo(p) {
 		const temp = this.state.boxes;
 		if (temp.length >= 0 && this.state.files.length > 0) {
-			this.dispatch({ type: "POP_BOX" });
 			const { canvas, ctx } = this.utils.getCanvasAndCtx();
 
-			ctx.strokeStyle = "orange";
 			const img = new Image();
 			img.src = this.state.files[this.state.currentFileIndex][1];
 
@@ -334,10 +332,8 @@ export default class Utils {
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				ctx.save();
 				if (img.height > canvas.height || img.width > canvas.width) {
-					this.utils.coverImg(img, "contain");
+					this.coverImg(img, "contain");
 				} else {
-					canvas.height = img.height;
-					canvas.width = img.width;
 					ctx.globalCompositeOperation = "destination-over";
 					ctx.drawImage(img, 0, 0);
 				}
@@ -346,8 +342,39 @@ export default class Utils {
 				ctx.beginPath();
 
 				ctx.stroke();
-				this.drawRects(ctx, temp);
-				// dispatch({ type: "SET_MOUSEMOVE", didMouseMove: true });
+				this.redraw();
+			};
+			img.onerror = (err) => {
+				console.log("img error");
+				console.error(err);
+			};
+		}
+	}
+
+	reRender() {
+		console.log("rerender");
+		const temp = this.state.boxes;
+		if (temp.length >= 0 && this.state.files.length > 0) {
+			const { canvas, ctx } = this.utils.getCanvasAndCtx();
+
+			const img = new Image();
+			img.src = this.state.files[this.state.currentFileIndex][1];
+
+			img.onload = () => {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.save();
+				if (img.height > canvas.height || img.width > canvas.width) {
+					this.coverImg(img, "contain");
+				} else {
+					ctx.globalCompositeOperation = "destination-over";
+					ctx.drawImage(img, 0, 0);
+				}
+
+				ctx.restore();
+				ctx.beginPath();
+
+				ctx.stroke();
+				this.redraw();
 			};
 			img.onerror = (err) => {
 				console.log("img error");

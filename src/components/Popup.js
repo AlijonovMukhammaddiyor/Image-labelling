@@ -1,10 +1,12 @@
 import React, { useState, useContext } from "react";
 import { Context } from "./context/context";
+import Utils from "./Utils";
 import "../styles/popup/popup.css";
 
 export default function Popup(props) {
 	const { state, dispatch } = useContext(Context);
-	const [label, setLabel] = useState(null);
+	const [label, setLabel] = useState(0);
+	const utils = new Utils(state, dispatch);
 
 	return (
 		<div
@@ -13,23 +15,34 @@ export default function Popup(props) {
 			style={{ top: `${props.startY}px`, left: `${props.startX}px` }}
 		>
 			<div style={{ padding: "0" }} className="title">
-				Please enter the label of this object.
+				Please select the class of current object.
 			</div>
-			<input
-				type="number"
-				value={label ? label : ""}
-				className="label__input"
+
+			<select
+				name="label_select"
+				id="label_select"
+				value={state.colors[label]}
 				onChange={(e) => {
 					console.log(e.target.value);
-					setLabel(e.target.value);
+					setLabel(state.colors.indexOf(e.target.value));
 				}}
-			/>
+			>
+				{state.colors.map((color, i) => {
+					return (
+						<option key={color} value={color}>
+							Class {i}
+						</option>
+					);
+				})}
+			</select>
 			<div className="buttons">
 				<button
 					className="cancel__btn"
 					onClick={() => {
 						// props.addToObjects(false, props.top, props.left, props.startX, props.startY, null);
 						dispatch({ type: "SET_POPUP", popup: false });
+						dispatch({ type: "SET_TMP_BOX", tmpBox: null });
+						utils.undo();
 					}}
 				>
 					Cancel
@@ -37,15 +50,18 @@ export default function Popup(props) {
 				<button
 					className="Ok__btn"
 					onClick={() => {
-						if (label) {
-							console.log("adding", props.currentBox);
-							const rect = props.currentBox;
-							rect.push(label);
-							dispatch({ type: "ADD_BOX", index: state.currentFileIndex, box: rect });
+						if (label >= 0) {
+							console.log("temp", props.currentBox);
+							dispatch({
+								type: "ADD_BOX",
+								index: state.currentFileIndex,
+								box: { ...props.currentBox, color: state.colors[label], label: label },
+							});
 							dispatch({ type: "SET_POPUP", popup: false });
-							props.setCurrentBox({});
+							dispatch({ type: "SET_TMP_BOX", tmpBox: null });
+							utils.reRender();
 						} else {
-							alert("Please enter label and click OK");
+							alert("Please select class and click OK");
 						}
 					}}
 				>

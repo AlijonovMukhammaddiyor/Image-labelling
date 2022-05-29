@@ -14,6 +14,9 @@ const DEFAULT_STATE = {
 	originalImageSize: { width: 0, height: 0 },
 	currentFileIndex: 0,
 	popup: false,
+	tmpBox: null,
+	colors: [],
+	labelPrompt: false,
 };
 
 const INITIAL_STATE = parsedState
