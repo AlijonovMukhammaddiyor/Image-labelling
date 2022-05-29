@@ -178,7 +178,6 @@ export default function App() {
 		if (state.isDrawing && state.files.length > 0) {
 			const { canvas, ctx } = utils.getCanvasAndCtx();
 
-			ctx.strokeStyle = "DeepSkyBlue";
 			const img = new Image();
 			img.src = state.files[state.currentFileIndex][1];
 
@@ -241,6 +240,7 @@ export default function App() {
 					}
 
 					dispatch({ type: "SET_BOXES", boxes: temp });
+					console.log("redrawing 2");
 					utils.redraw();
 				}
 
@@ -296,7 +296,6 @@ export default function App() {
 		// console.log("mouse out");
 		// dispatch({ type: "SET_MOUSE", mouseX: -1, mouseY: -1 });
 		// dispatch({ type: "SET_DRAWING", isDrawing: false });
-		console.log("mouseOut");
 		if (state.clickedArea.box !== -1) {
 			const boxes = state.boxes[state.currentFileIndex];
 			let selectedBox = boxes[state.clickedArea.box];

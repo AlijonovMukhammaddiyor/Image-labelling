@@ -201,13 +201,10 @@ const Reducer = (state, action) => {
 			const b = state.boxes[action.index];
 			let c = JSON.stringify(b).indexOf(JSON.stringify(action.box));
 
-			console.log(c);
 			if (c === -1) {
-				console.log("yes there is");
 				b.push(action.box);
 			}
 
-			console.log(b);
 			return {
 				...state,
 				boxes: { ...state.boxes, currentFileIndex: b },

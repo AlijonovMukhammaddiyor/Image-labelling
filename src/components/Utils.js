@@ -128,15 +128,11 @@ export default class Utils {
 	}
 
 	findCurrentArea(x, y) {
-		console.log("f", x, y);
 		const boxes = this.state.boxes[this.state.currentFileIndex];
-		console.log(boxes);
 		for (var i = 0; i < boxes.length; i++) {
 			var box = boxes[i];
-			console.log(box);
 			let xCenter = box.x1 + (box.x2 - box.x1) / 2;
 			let yCenter = box.y1 + (box.y2 - box.y1) / 2;
-			console.log(xCenter, yCenter);
 			if (box.x1 - this.lineOffset < x && x < box.x1 + this.lineOffset) {
 				if (box.y1 - this.lineOffset < y && y < box.y1 + this.lineOffset) {
 					return { box: i, pos: "tl" };
@@ -200,12 +196,11 @@ export default class Utils {
 	redraw() {
 		// canvas.width = canvas.width;
 		const boxes = this.state.boxes[this.state.currentFileIndex];
+		const { ctx } = this.getCanvasAndCtx();
 
-		const { canvas, ctx } = this.getCanvasAndCtx();
-		// ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.beginPath();
 		for (var i = 0; i < boxes.length; i++) {
-			this.drawBoxOn(boxes[i], ctx);
+			this.drawBoxOn(boxes[i]);
 		}
 
 		if (this.state.clickedArea.box === -1) {
@@ -218,77 +213,86 @@ export default class Utils {
 
 			this.dispatch({ type: "SET_TMP_BOX", tmpBox });
 			if (tmpBox != null) {
-				this.drawBoxOn(tmpBox, ctx);
+				this.drawBoxOn(tmpBox);
 			}
 		}
 	}
 
-	drawBoxOn(box, context) {
-		console.log(box);
+	drawBoxOn(box) {
+		const { canvas, ctx } = this.getCanvasAndCtx();
 		const xCenter = box.x1 + (box.x2 - box.x1) / 2;
 		const yCenter = box.y1 + (box.y2 - box.y1) / 2;
+		ctx.beginPath();
+		console.log(box.color);
+		ctx.fillStyle = box.color;
+		ctx.strokeStyle = box.color;
+		ctx.rect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
+		ctx.lineWidth = box.lineWidth;
+		ctx.stroke();
 
-		context.strokeStyle = box.color;
-		context.fillStyle = box.color;
-
-		context.rect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
-		context.lineWidth = box.lineWidth;
-		context.stroke();
-
-		context.fillRect(
+		ctx.fillRect(
 			box.x1 - this.anchrSize,
 			box.y1 - this.anchrSize,
 			2 * this.anchrSize,
 			2 * this.anchrSize
 		);
-		context.fillRect(
+
+		ctx.fillRect(
 			box.x1 - this.anchrSize,
 			yCenter - this.anchrSize,
 			2 * this.anchrSize,
 			2 * this.anchrSize
 		);
-		context.fillRect(
+
+		ctx.fillRect(
 			box.x1 - this.anchrSize,
 			box.y2 - this.anchrSize,
 			2 * this.anchrSize,
 			2 * this.anchrSize
 		);
-		context.fillRect(
+
+		ctx.fillRect(
 			xCenter - this.anchrSize,
 			box.y1 - this.anchrSize,
 			2 * this.anchrSize,
 			2 * this.anchrSize
 		);
-		context.fillRect(
+
+		ctx.fillRect(
 			xCenter - this.anchrSize,
 			yCenter - this.anchrSize,
 			2 * this.anchrSize,
 			2 * this.anchrSize
 		);
-		context.fillRect(
+
+		ctx.fillRect(
 			xCenter - this.anchrSize,
 			box.y2 - this.anchrSize,
 			2 * this.anchrSize,
 			2 * this.anchrSize
 		);
-		context.fillRect(
+
+		ctx.fillRect(
 			box.x2 - this.anchrSize,
 			box.y1 - this.anchrSize,
 			2 * this.anchrSize,
 			2 * this.anchrSize
 		);
-		context.fillRect(
+
+		ctx.fillRect(
 			box.x2 - this.anchrSize,
 			yCenter - this.anchrSize,
 			2 * this.anchrSize,
 			2 * this.anchrSize
 		);
-		context.fillRect(
+
+		ctx.fillRect(
 			box.x2 - this.anchrSize,
 			box.y2 - this.anchrSize,
 			2 * this.anchrSize,
 			2 * this.anchrSize
 		);
+		ctx.stroke();
 	}
 
 	newBox(x1, y1, x2, y2) {
@@ -352,10 +356,8 @@ export default class Utils {
 	}
 
 	reRender() {
-		console.log("rerender");
-		const temp = this.state.boxes;
-		if (temp.length >= 0 && this.state.files.length > 0) {
-			const { canvas, ctx } = this.utils.getCanvasAndCtx();
+		if (this.state.files.length > 0) {
+			const { canvas, ctx } = this.getCanvasAndCtx();
 
 			const img = new Image();
 			img.src = this.state.files[this.state.currentFileIndex][1];
@@ -374,7 +376,11 @@ export default class Utils {
 				ctx.beginPath();
 
 				ctx.stroke();
-				this.redraw();
+				const boxes = this.state.boxes[this.state.currentFileIndex];
+				ctx.beginPath();
+				for (var i = 0; i < boxes.length; i++) {
+					this.drawBoxOn(boxes[i]);
+				}
 			};
 			img.onerror = (err) => {
 				console.log("img error");
