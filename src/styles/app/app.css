@@ -1,0 +1,203 @@
+* {
+  margin: 0;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  background-image: url("/src/assets/2560x1440-little-green-leaves-free-website-background-image.jpeg");
+  position: relative;
+}
+
+.app__container {
+  margin: auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  background-color: white;
+  width: 90vw;
+  height: 90vh;
+  border-radius: 10px;
+}
+
+.app__container .title {
+  padding-top: 2rem;
+  text-align: center;
+}
+
+.app__container .title h1 {
+  font-family: "Raleway";
+  font-size: 3rem;
+  color: #4f45b8;
+}
+
+.app__container .title p {
+  font-family: "Roboto";
+  width: 25%;
+  color: #011936;
+  margin-top: 2rem;
+  font-size: 1.2rem;
+  margin-inline: auto;
+}
+
+.app__container main {
+  height: calc(100% - 60px);
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 2rem;
+  padding-bottom: 1rem;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+.app__container .header {
+  width: 100%;
+  height: 60px;
+  background-color: #4f45b8;
+}
+
+.app__container .input__container {
+  overflow: hidden;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 100%;
+  height: calc(100% - 100px);
+  background-color: #fff;
+  position: relative;
+}
+
+.app__container .input__container img {
+  padding: 5px;
+  width: 25rem;
+  height: 30rem;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
+.app__container .input__container label {
+  border: none;
+  background-color: #4f45b8;
+  font-size: 1.3rem;
+  padding: 10px 15px;
+  position: absolute;
+  top: 50%;
+  right: 30%;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #fff;
+}
+
+.app__container .footer {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+  width: 100%;
+  position: relative;
+}
+
+.app__container .footer label.upload {
+  border: none;
+  background-color: #4f45b8;
+  font-size: 1.3rem;
+  padding: 10px 15px;
+  top: 50%;
+  right: 30%;
+  border-radius: 5px;
+  cursor: pointer;
+  -webkit-box-shadow: 0px 0px 5px 7px #4f45b8;
+          box-shadow: 0px 0px 5px 7px #4f45b8;
+}
+
+.app__container .footer .download__btns {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 1rem;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.app__container .footer .download {
+  border: none;
+  background-color: #2bce89;
+  font-size: 1.3rem;
+  padding: 10px 15px;
+  top: 50%;
+  right: 30%;
+  border-radius: 5px;
+  cursor: pointer;
+  -webkit-box-shadow: 0px 0px 5px 3px #4f45b8;
+          box-shadow: 0px 0px 5px 3px #4f45b8;
+  color: #fff;
+}
+
+.app__container .footer div.zooms {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  width: 300px;
+  position: absolute;
+  top: 10px;
+  right: 30px;
+}
+
+.app__container .footer .zoom {
+  font-size: 22px;
+  padding: 5px 15px;
+  cursor: pointer;
+}
+
+.app__container .footer .fill__color {
+  cursor: pointer;
+}
+
+.app__container .footer .undo {
+  cursor: pointer;
+  padding: 10px 15px;
+}
+
+.app__container .footer .next__image,
+.app__container .footer .prev__image {
+  padding: 10px 15px;
+  cursor: pointer;
+}
+/*# sourceMappingURL=app.css.map */

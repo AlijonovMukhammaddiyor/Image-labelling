@@ -1,0 +1,159 @@
+* {
+	margin: 0;
+	box-sizing: border-box;
+}
+body {
+	margin: 0;
+	box-sizing: border-box;
+	background-image: url("/src/assets/2560x1440-little-green-leaves-free-website-background-image.jpeg");
+	//   max-height: 100vh;
+	position: relative;
+}
+.app__container {
+	margin: auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	background-color: white;
+	width: 90vw;
+	height: 90vh;
+	// margin: 5vh 5vw;
+	border-radius: 10px;
+
+	.title {
+		padding-top: 2rem;
+		text-align: center;
+
+		h1 {
+			font-family: "Raleway";
+			font-size: 3rem;
+			color: #4f45b8;
+		}
+
+		p {
+			font-family: "Roboto";
+			width: 25%;
+			color: #011936;
+			margin-top: 2rem;
+			font-size: 1.2rem;
+			margin-inline: auto;
+		}
+	}
+
+	main {
+		height: calc(100% - 60px);
+		width: 100%;
+		display: flex;
+		gap: 2rem;
+		padding-bottom: 1rem;
+		align-items: center;
+		justify-content: flex-start;
+		flex-direction: column;
+	}
+
+	.header {
+		width: 100%;
+		height: 60px;
+		background-color: #4f45b8;
+	}
+
+	.input__container {
+		overflow: hidden;
+		display: flex;
+		justify-content: center;
+		width: 100%;
+		height: calc(100% - 100px);
+		background-color: #fff;
+		position: relative;
+		img {
+			padding: 5px;
+			//   box-shadow: inset 0 0 10px 5px lightgray;
+			width: 25rem;
+			height: 30rem;
+			object-fit: contain;
+		}
+
+		label {
+			border: none;
+			background-color: #4f45b8;
+			font-size: 1.3rem;
+			padding: 10px 15px;
+			position: absolute;
+			top: 50%;
+			right: 30%;
+			border-radius: 5px;
+			cursor: pointer;
+			color: #fff;
+		}
+	}
+
+	.footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-around;
+		width: 100%;
+		position: relative;
+		label.upload {
+			border: none;
+			background-color: #4f45b8;
+			font-size: 1.3rem;
+			padding: 10px 15px;
+			top: 50%;
+			right: 30%;
+			border-radius: 5px;
+			cursor: pointer;
+			box-shadow: 0px 0px 5px 7px #4f45b8;
+		}
+
+		.download__btns {
+			display: flex;
+			gap: 1rem;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.download {
+			border: none;
+			background-color: #2bce89;
+			font-size: 1.3rem;
+			padding: 10px 15px;
+			top: 50%;
+			right: 30%;
+			border-radius: 5px;
+			cursor: pointer;
+			box-shadow: 0px 0px 5px 3px #4f45b8;
+			color: #fff;
+		}
+
+		div.zooms {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			width: 300px;
+			position: absolute;
+			top: 10px;
+			right: 30px;
+		}
+
+		.zoom {
+			font-size: 22px;
+			padding: 5px 15px;
+			cursor: pointer;
+		}
+
+		.fill__color {
+			cursor: pointer;
+		}
+
+		.undo {
+			cursor: pointer;
+			padding: 10px 15px;
+		}
+
+		.next__image,
+		.prev__image {
+			padding: 10px 15px;
+			cursor: pointer;
+		}
+	}
+}
