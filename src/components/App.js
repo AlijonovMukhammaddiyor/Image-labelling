@@ -10,6 +10,9 @@ export default function App() {
 	const [currentBox, setCurrentBox] = useState([]);
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const utils = useMemo(() => new Utils(state, dispatch), [state]);
+	const MAX_ZOOM = 5;
+	const MIN_ZOOM = 0.1;
+	const SCROLL_SENSITIVITY = 0.0005;
 
 	useEffect(() => {
 		const canvas = document.getElementById("canvas");

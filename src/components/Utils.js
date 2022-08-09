@@ -6,6 +6,8 @@ export default class Utils {
 		this.dispatch = dispatch;
 		this.lineOffset = 4;
 		this.anchrSize = 4;
+		this.MAX_ZOOM = 5;
+		this.MIN_ZOOM = 0.1;
 	}
 
 	download(e) {
@@ -389,11 +391,35 @@ export default class Utils {
 		}
 	}
 
-	setPopup(p) {
-		this.popup = p;
+	adjustZoom(zoomAmount, zoomFactor) {
+		let temp = this.state.scale;
+		if (!this.state.isDragging) {
+			if (zoomAmount) {
+				temp += zoomAmount;
+			} else if (zoomFactor) {
+				temp = zoomFactor * this.state.lastScale;
+			}
+
+			temp = Math.min(temp, this.MAX_ZOOM);
+			temp = Math.max(temp, this.MIN_ZOOM);
+			this.dispatch({ type: "SET_SCALE", scale: temp });
+			console.log(zoomAmount);
+		}
 	}
 
-	getPopup() {
-		return this.popup;
+	handlePinch(e) {
+		e.preventDefault();
+
+		let touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+		let touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
+
+		// This is distance squared, but no need for an expensive sqrt as it's only used in ratio
+		let currentDistance = (touch1.x - touch2.x) ** 2 + (touch1.y - touch2.y) ** 2;
+
+		if (this.state.initialPinchDistance == null) {
+			this.dispatch({ type: "SET_PINCH_DISTANCE", distance: currentDistance });
+		} else {
+			this.adjustZoom(null, currentDistance / this.state.initialPinchDistance);
+		}
 	}
 }

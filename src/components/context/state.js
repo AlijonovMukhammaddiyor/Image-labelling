@@ -17,6 +17,12 @@ const DEFAULT_STATE = {
 	tmpBox: null,
 	colors: [],
 	labelPrompt: false,
+	scale: 1,
+	lastScale: 1,
+	sharpness: 4,
+	cameraOffset: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+	isDragging: false,
+	initialPinchDistance: null,
 };
 
 const INITIAL_STATE = parsedState

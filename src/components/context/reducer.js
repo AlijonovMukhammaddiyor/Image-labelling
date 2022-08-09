@@ -182,10 +182,35 @@ const Reducer = (state, action) => {
 				startX: action.startX,
 				startY: action.startY,
 			};
+		case "SET_DRAGGING":
+			return {
+				...state,
+				isDragging: action.isDragging,
+			};
 		case "SET_FILES":
 			return {
 				...state,
 				files: action.files,
+			};
+		case "SET_PINCH_DISTANCE":
+			return {
+				...state,
+				initialPinchDistance: action.distance,
+			};
+		case "SET_SCALE":
+			return {
+				...state,
+				scale: action.scale,
+			};
+		case "SET_PREV_SCALE":
+			return {
+				...state,
+				lastScale: action.lastScale,
+			};
+		case "SET_SHARPNESS":
+			return {
+				...state,
+				sharpness: action.sharpness,
 			};
 		case "SET_CLICKED_AREA":
 			return {
